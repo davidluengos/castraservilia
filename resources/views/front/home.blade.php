@@ -3,19 +3,41 @@
 @section('title', 'Castra Servilia Basket · Club de baloncesto de Cáceres')
 
 @section('content')
-    <section class="hero">
-        <div class="container text-center">
-            <h1 class="display-4 fw-bold mb-3">Castra Servilia Basket</h1>
-            <p class="lead mb-4">Un club pequeño con espíritu grande.</p>
-            <a href="/el-club" class="btn btn-light btn-lg">Conoce el club</a>
+    @if($sliderImages->isNotEmpty())
+        <div id="csHero" class="carousel slide carousel-fade cs-carousel" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                @foreach($sliderImages as $i => $img)
+                    <button type="button" data-bs-target="#csHero" data-bs-slide-to="{{ $i }}" @if($i===0) class="active" aria-current="true" @endif aria-label="Slide {{ $i+1 }}"></button>
+                @endforeach
+            </div>
+            <div class="carousel-inner">
+                @foreach($sliderImages as $i => $img)
+                    <div class="carousel-item @if($i===0) active @endif">
+                        <img src="{{ $img->url() }}" alt="{{ $img->title }}">
+                        @if($img->title)
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5 class="mb-0">{{ $img->title }}</h5>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#csHero" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#csHero" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
         </div>
-    </section>
+    @endif
 
     <div class="container">
         @if($latestPosts->isNotEmpty())
-            <section class="mb-5">
-                <div class="d-flex justify-content-between align-items-end mb-3">
-                    <h2 class="mb-0">Últimas noticias</h2>
+            <section>
+                <div class="section-title d-flex justify-content-between align-items-center">
+                    <h2>Últimas noticias</h2>
                     <a href="{{ route('front.posts.index') }}" class="small">Ver todas &rarr;</a>
                 </div>
                 <div class="row g-4">
@@ -38,8 +60,10 @@
             </section>
         @endif
 
-        <section class="mb-5">
-            <h2 class="mb-3">Explora</h2>
+        <section>
+            <div class="section-title">
+                <h2>Explora el club</h2>
+            </div>
             <div class="row g-4">
                 @php
                     $blocks = [
@@ -67,19 +91,20 @@
         </section>
 
         @if($colaboradores->isNotEmpty())
-            <section class="mb-5">
-                <h2 class="mb-3">Colaboradores</h2>
+            <section>
+                <div class="section-title">
+                    <h2>Colaboradores</h2>
+                </div>
                 <div class="row g-3">
                     @foreach($colaboradores as $col)
                         <div class="col-6 col-md-3 col-lg-2">
                             <a href="/colaboradores/{{ $col->slug }}" class="text-decoration-none text-reset">
-                                <div class="card block-card h-100 text-center">
+                                <div class="colab-card h-100">
                                     @if($col->cover)
-                                        <img src="{{ $col->cover->url() }}" class="card-img-top p-2" alt="{{ $col->title }}" style="height: 100px; object-fit: contain;">
+                                        <img src="{{ $col->cover->url() }}" alt="{{ $col->title }}">
+                                    @else
+                                        <small class="text-center">{{ $col->title }}</small>
                                     @endif
-                                    <div class="card-body p-2">
-                                        <small>{{ $col->title }}</small>
-                                    </div>
                                 </div>
                             </a>
                         </div>

@@ -22,7 +22,7 @@
 
         @if($section->body)
             <article class="section-body mb-4">
-                {!! $section->body !!}
+                {!! $section->renderedBody() !!}
             </article>
         @endif
 

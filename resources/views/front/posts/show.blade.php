@@ -20,7 +20,7 @@
             </header>
 
             <div class="section-body">
-                {!! $post->body !!}
+                {!! $post->renderedBody() !!}
             </div>
 
             @if($post->images->isNotEmpty())

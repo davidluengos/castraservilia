@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\LegacyBodyRewriter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -52,6 +53,11 @@ class TreeSection extends Model
     public function getCoverAttribute(): ?DataImage
     {
         return $this->images->first();
+    }
+
+    public function renderedBody(): string
+    {
+        return LegacyBodyRewriter::rewrite($this->body);
     }
 
     public static function findBySlug(string $slug, ?int $parentId = null): ?self

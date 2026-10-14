@@ -10,20 +10,11 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $elClub = TreeSection::find(10);
-        $plantillas = TreeSection::find(59);
+        $slider = TreeSection::find(163);
+        $sliderImages = $slider ? $slider->images : collect();
         $colaboradores = TreeSection::where('parent_id', 3)->visibleInMenu()->orderBy('lft')->get();
-        $actividades = TreeSection::find(94);
-        $competicion = TreeSection::find(39);
         $latestPosts = Post::published()->take(3)->get();
 
-        return view('front.home', compact(
-            'elClub',
-            'plantillas',
-            'colaboradores',
-            'actividades',
-            'competicion',
-            'latestPosts'
-        ));
+        return view('front.home', compact('sliderImages', 'colaboradores', 'latestPosts'));
     }
 }
