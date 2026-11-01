@@ -10,8 +10,18 @@
             <div class="alert alert-success">{{ session('status') }}</div>
         @endif
 
+        @if(session('status_error'))
+            <div class="alert alert-danger">{{ session('status_error') }}</div>
+        @endif
+
         <form method="POST" action="{{ route('front.contact.store') }}">
             @csrf
+
+            <div style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;" aria-hidden="true">
+                <label for="website">No rellenar</label>
+                <input type="text" name="website" id="website" tabindex="-1" autocomplete="off" value="">
+            </div>
+
             <div class="mb-3">
                 <label for="name" class="form-label">Nombre</label>
                 <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required>

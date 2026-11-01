@@ -112,6 +112,8 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    'contact_to' => env('CONTACT_TO', 'info@greetik.com'),
+
     /*
     |--------------------------------------------------------------------------
     | Markdown Mail Settings
