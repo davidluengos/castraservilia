@@ -5,6 +5,7 @@ namespace App\Http\Controllers\front;
 use App\Http\Controllers\Controller;
 use App\Mail\ContactFormMail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -23,6 +24,10 @@ class ContactController extends Controller
                 'ua' => $request->userAgent(),
             ]);
 
+            return redirect()->route('front.contact')->with('status', 'Gracias, hemos recibido tu mensaje.');
+        }
+
+        if (! $this->passesRecaptcha($request)) {
             return redirect()->route('front.contact')->with('status', 'Gracias, hemos recibido tu mensaje.');
         }
 
@@ -50,5 +55,50 @@ class ContactController extends Controller
         }
 
         return redirect()->route('front.contact')->with('status', 'Gracias, hemos recibido tu mensaje.');
+    }
+
+    private function passesRecaptcha(Request $request): bool
+    {
+        $secret = config('services.recaptcha.secret');
+        if (! $secret) {
+            return true;
+        }
+
+        $token = (string) $request->input('g-recaptcha-response');
+        if ($token === '') {
+            Log::channel('single')->warning('Contact form reCAPTCHA missing token', [
+                'ip' => $request->ip(),
+            ]);
+            return false;
+        }
+
+        try {
+            $response = Http::asForm()->timeout(5)->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => $secret,
+                'response' => $token,
+                'remoteip' => $request->ip(),
+            ])->json();
+        } catch (\Throwable $e) {
+            Log::channel('single')->error('Contact form reCAPTCHA request failed: '.$e->getMessage());
+            return true;
+        }
+
+        $success = (bool) ($response['success'] ?? false);
+        $score = (float) ($response['score'] ?? 0);
+        $action = (string) ($response['action'] ?? '');
+        $minScore = (float) config('services.recaptcha.min_score', 0.5);
+
+        if (! $success || $action !== 'contact' || $score < $minScore) {
+            Log::channel('single')->warning('Contact form reCAPTCHA rejected', [
+                'ip' => $request->ip(),
+                'success' => $success,
+                'score' => $score,
+                'action' => $action,
+                'errors' => $response['error-codes'] ?? [],
+            ]);
+            return false;
+        }
+
+        return true;
     }
 }
